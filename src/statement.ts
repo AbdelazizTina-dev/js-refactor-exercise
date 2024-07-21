@@ -6,7 +6,7 @@ import {
   PlayType,
 } from "./types";
 import {
-  AUDIENCE_THRESHOLD_FOR_VOLUME_CREDS,
+  AUDIENCE_THRESHOLD_FOR_VOLUME_CREDITS,
   COMEDY_AUDIENCE_DIVISOR,
   ComedyFees,
   format,
@@ -19,7 +19,7 @@ const calculateVolumeCredits = (
   audienceNumber: number
 ): number => {
   let volumeCredits = Math.max(
-    audienceNumber - AUDIENCE_THRESHOLD_FOR_VOLUME_CREDS,
+    audienceNumber - AUDIENCE_THRESHOLD_FOR_VOLUME_CREDITS,
     0
   );
 
@@ -29,31 +29,31 @@ const calculateVolumeCredits = (
   return volumeCredits;
 };
 
-const calculateAmountForTragedyPerformance = (audience: number): number => {
-  let amount = TragedyFees.BASE_FEE;
+const calculateAmount = (audience: number, playType: PlayType): number => {
+  let amount =
+    playType === PlayTypes.tragedy ? TragedyFees.BASE_FEE : ComedyFees.BASE_FEE;
 
-  if (audience > TragedyFees.AUDIENCE_THRESHOLD) {
-    amount +=
-      TragedyFees.FEE_PER_EXTRA_PERSON *
-      (audience - TragedyFees.AUDIENCE_THRESHOLD);
+  switch (playType) {
+    case PlayTypes.tragedy:
+      if (audience > TragedyFees.AUDIENCE_THRESHOLD) {
+        amount +=
+          TragedyFees.FEE_PER_EXTRA_PERSON *
+          (audience - TragedyFees.AUDIENCE_THRESHOLD);
+      }
+
+      return amount;
+    case PlayTypes.comedy:
+      if (audience > ComedyFees.AUDIENCE_THRESHOLD) {
+        amount +=
+          ComedyFees.FLAT_EXTRA_FEE +
+          ComedyFees.FEE_PER_EXTRA_PERSON *
+            (audience - ComedyFees.AUDIENCE_THRESHOLD);
+      }
+
+      amount += ComedyFees.FEE_PER_PERSON * audience;
+
+      return amount;
   }
-
-  return amount;
-};
-
-const calculateAmountForComedyPerformance = (audience: number): number => {
-  let amount = ComedyFees.BASE_FEE;
-
-  if (audience > ComedyFees.AUDIENCE_THRESHOLD) {
-    amount +=
-      ComedyFees.FLAT_EXTRA_FEE +
-      ComedyFees.FEE_PER_EXTRA_PERSON *
-        (audience - ComedyFees.AUDIENCE_THRESHOLD);
-  }
-
-  amount += ComedyFees.FEE_PER_PERSON * audience;
-
-  return amount;
 };
 
 const getOutputForPerformance = (
@@ -62,10 +62,7 @@ const getOutputForPerformance = (
 ): PerformanceOutput => {
   return {
     ...performance,
-    amount:
-      playType === PlayTypes.tragedy
-        ? calculateAmountForTragedyPerformance(performance.audience)
-        : calculateAmountForComedyPerformance(performance.audience),
+    amount: calculateAmount(performance.audience, playType),
     volumeCredits: calculateVolumeCredits(playType, performance.audience),
   };
 };
@@ -75,6 +72,7 @@ const getDataForPerformances = (
   plays: PlaysRecord
 ): PerformanceOutput[] => {
   const output: PerformanceOutput[] = [];
+
   for (let perf of performances) {
     const play = plays[perf.playID];
     output.push(getOutputForPerformance(perf, play.type));
