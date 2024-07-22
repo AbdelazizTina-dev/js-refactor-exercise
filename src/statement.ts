@@ -14,7 +14,7 @@ import {
   TragedyFees,
 } from "./utils";
 
-const calculateVolumeCredits = (
+export const calculateVolumeCredits = (
   playType: PlayType,
   audienceNumber: number
 ): number => {
@@ -29,7 +29,7 @@ const calculateVolumeCredits = (
   return volumeCredits;
 };
 
-const calculateAmount = (audience: number, playType: PlayType): number => {
+export const calculateAmount = (audience: number, playType: PlayType): number => {
   let amount =
     playType === PlayTypes.tragedy ? TragedyFees.BASE_FEE : ComedyFees.BASE_FEE;
 
@@ -56,7 +56,7 @@ const calculateAmount = (audience: number, playType: PlayType): number => {
   }
 };
 
-const getOutputForPerformance = (
+export const getOutputForPerformance = (
   performance: Performance,
   playType: PlayType
 ): PerformanceOutput => {
@@ -67,7 +67,7 @@ const getOutputForPerformance = (
   };
 };
 
-const getDataForPerformances = (
+export const getDataForPerformances = (
   performances: Performance[],
   plays: PlaysRecord
 ): PerformanceOutput[] => {
