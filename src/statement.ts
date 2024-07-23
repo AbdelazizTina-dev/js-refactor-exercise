@@ -29,7 +29,10 @@ export const calculateVolumeCredits = (
   return volumeCredits;
 };
 
-export const calculateAmount = (audience: number, playType: PlayType): number => {
+export const calculateAmount = (
+  audience: number,
+  playType: PlayType
+): number => {
   let amount =
     playType === PlayTypes.tragedy ? TragedyFees.BASE_FEE : ComedyFees.BASE_FEE;
 
@@ -53,6 +56,8 @@ export const calculateAmount = (audience: number, playType: PlayType): number =>
       amount += ComedyFees.FEE_PER_PERSON * audience;
 
       return amount;
+    default:
+      throw new Error("Unknown play type!");
   }
 };
 
